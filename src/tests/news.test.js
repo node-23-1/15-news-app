@@ -1,9 +1,11 @@
 const request = require('supertest');
 const app = require('../app');
 const Category = require('../models/Category');
+const NewsImg = require('../models/NewsImg');
 require('../models');
 
 let token;
+let newsId;
 
 beforeAll(async() => {
     const credentials = {
@@ -27,14 +29,28 @@ test('POST /news should create a news', async () => {
         .post('/news')
         .send(news)
         .set('Authorization', `Bearer ${token}`);
+    newsId = res.body.id;
     await category.destroy();
     expect(res.status).toBe(201);
     expect(res.body.id).toBeDefined();
 });
 
-test('GET /users', async () => {
+test('GET /news', async () => {
     const res = await request(app).get('/news');
-    console.log(res.body);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(1);
+});
+
+test('POST /news/:id/images should set the news images', async () => {
+    const image = await NewsImg.create({
+        url: "http://falseurl.com",
+        publicId: "false id",
+    })
+    const res = await request(app)
+        .post(`/news/${newsId}/images`)
+        .send([image.id])
+        .set('Authorization', `Bearer ${token}`)
+    await image.destroy();
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(1);
 });

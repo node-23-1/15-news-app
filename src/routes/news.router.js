@@ -1,4 +1,4 @@
-const { getAll, create, getOne, remove, update } = require('../controllers/news.controllers');
+const { getAll, create, getOne, remove, update, setNewsImgs } = require('../controllers/news.controllers');
 const express = require('express');
 const verifyJWT = require('../utils/verifyJWT');
 
@@ -12,5 +12,8 @@ newsRouter.route('/:id')
     .get(getOne)
     .delete(verifyJWT, remove)
     .put(verifyJWT, update);
+
+newsRouter.route('/:id/images')
+    .post(verifyJWT, setNewsImgs)
 
 module.exports = newsRouter;
