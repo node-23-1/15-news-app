@@ -2,13 +2,26 @@ const catchError = require('../utils/catchError');
 const News = require('../models/News');
 const Category = require('../models/Category');
 const NewsImg = require('../models/NewsImg');
+const { Op } = require("sequelize");
 
 const getAll = catchError(async(req, res) => {
+    const { headline, categoryId } = req.query;
+    const where = {};
+    if(headline) where.headline = {[Op.iLike]:`%${headline}%`};
+    if(categoryId) where.categoryId = categoryId;
     const results = await News.findAll({
-        include: [ Category, NewsImg ]
+        include: [ Category, NewsImg ],
+        where
     });
     return res.json(results);
 });
+
+// 0. Product.create()
+// 1. Cart.create({quantity: 1, productId})
+// 2. request(app).post('/purchases')
+// 3. request(app).post('/cart')
+// 4. validar que las compras sean 1
+// 5. validar que en el carrito no haya nada
 
 const create = catchError(async(req, res) => {
     const result = await News.create(req.body);
